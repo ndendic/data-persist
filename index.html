@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <title>Datastar Plugin Starter</title>
+    <title>Datastar Persist Plugin Demo</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css"
@@ -16,18 +16,194 @@
         }
       }
     </script>
+    <!-- <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-RC.6/bundles/datastar.js"></script> -->
     <script type="module" src="./dist/index.js"></script>
   </head>
   <body>
     <main>
-      <h1>Plugin Demo</h1>
+      <h1>Datastar Persist Plugin</h1>
+      <p>
+        This plugin automatically persists Datastar signals to localStorage or sessionStorage.
+        <strong>Reload the page</strong> to see your data persist!
+      </p>
 
-      <!-- add some HTML here to demo your plugin behaviour -->
-      <pre><code
-          data-signals:i="1"
-          data-on-interval__duration.1s="$i++"
-          data-text="@fizzbuzz($i)"
-      ></code></pre>
+      <!-- Example 1: Basic single signal persistence -->
+      <section>
+        <h2>1. Basic Persistence (Single Signal)</h2>
+        <div data-signals:count="0" data-persist="count">
+          <p>Counter: <strong data-text="$count"></strong></p>
+          <button data-on:click="$count++">Increment</button>
+          <button data-on:click="$count--">Decrement</button>
+          <button data-on:click="$count=0">Reset</button>
+        </div>
+        <details>
+          <summary>How it works</summary>
+          <pre><code>&lt;div data-signals:count="0" data-persist="count"&gt;</code></pre>
+          <p>The <code>data-persist="count"</code> attribute tells the plugin to save the <code>count</code> signal to localStorage.</p>
+        </details>
+      </section>
+
+      <hr>
+
+      <!-- Example 2: Multiple signals -->
+      <section>
+        <h2>2. Multiple Signals</h2>
+        <div
+          data-signals:name="''"
+          data-signals:email="''"
+          data-persist="name,email">
+          <label>
+            Name:
+            <input type="text" data-bind:name placeholder="Enter your name">
+          </label>
+          <label>
+            Email:
+            <input type="email" data-bind:email placeholder="Enter your email">
+          </label>
+          <p>Hello, <strong data-text="$name || 'stranger'"></strong>!</p>
+          <p data-show="$email">Your email: <code data-text="$email"></code></p>
+        </div>
+        <details>
+          <summary>How it works</summary>
+          <pre><code>&lt;div
+  data-signals:name="''"
+  data-signals:email="''"
+  data-persist="name,email"&gt;</code></pre>
+          <p>Comma-separated signal names persist multiple values.</p>
+        </details>
+      </section>
+
+      <hr>
+
+      <!-- Example 3: Wildcard persistence -->
+      <section>
+        <h2>3. Wildcard Persistence (All Signals)</h2>
+        <div
+          data-signals="{todos: [], newTodo: ''}"
+          data-persist>
+          <label>
+            New Todo:
+            <input
+              type="text"
+              data-bind="newTodo"
+              placeholder="What needs to be done?"
+              data-on:keydown.enter="$todos.push($newTodo); $newTodo=''">
+          </label>
+          <button
+            data-on:click="$todos.push($newTodo); $newTodo=''"
+            data-attr:disabled="!$newTodo">
+            Add Todo
+          </button>
+          <p data-show="$todos.length > 0">
+            Todos: <strong data-text="$todos.join(', ')"></strong>
+          </p>
+          <button
+            data-on:click="$todos=[]"
+            data-show="$todos.length > 0">
+            Clear All
+          </button>
+        </div>
+        <details>
+          <summary>How it works</summary>
+          <pre><code>&lt;div data-signals:todos="[]" data-persist&gt;</code></pre>
+          <p>Empty <code>data-persist</code> (no value) persists all signals on the element.</p>
+        </details>
+      </section>
+
+      <hr>
+
+      <!-- Example 4: Custom storage key -->
+      <section>
+        <h2>4. Custom Storage Key</h2>
+        <div
+          data-signals:theme="'light'"
+          data-persist:preferences="theme">
+          <p>Current theme: <strong data-text="$theme"></strong></p>
+          <button data-on:click="$theme = $theme === 'light' ? 'dark' : 'light'">
+            Toggle Theme
+          </button>
+        </div>
+        <details>
+          <summary>How it works</summary>
+          <pre><code>&lt;div data-persist:preferences="theme"&gt;</code></pre>
+          <p>Using <code>:preferences</code> stores data in <code>datastar-preferences</code> key instead of default <code>datastar</code>.</p>
+        </details>
+      </section>
+
+      <hr>
+
+      <!-- Example 5: Session storage -->
+      <section>
+        <h2>5. Session Storage (Temporary)</h2>
+        <div
+          data-signals:tabState="'home'"
+          data-persist__session="tabState">
+          <p>Current tab: <strong data-text="$tabState"></strong></p>
+          <button data-on:click="$tabState='home'">Home</button>
+          <button data-on:click="$tabState='profile'">Profile</button>
+          <button data-on:click="$tabState='settings'">Settings</button>
+        </div>
+        <details>
+          <summary>How it works</summary>
+          <pre><code>&lt;div data-persist__session="tabState"&gt;</code></pre>
+          <p>The <code>__session</code> modifier uses sessionStorage (cleared when browser tab closes).</p>
+        </details>
+      </section>
+
+      <hr>
+
+      <!-- Example 6: Form with complex data -->
+      <section>
+        <h2>6. Complex Form Data</h2>
+        <div
+          data-signals:user="{firstName: '', lastName: '', age: 18, subscribe: false}"
+          data-persist:userForm="user">
+          <label>
+            First Name:
+            <input type="text" data-bind="user.firstName">
+          </label>
+          <label>
+            Last Name:
+            <input type="text" data-bind="user.lastName">
+          </label>
+          <label>
+            Age:
+            <input type="number" data-bind="user.age" min="0" max="120">
+          </label>
+          <label>
+            <input type="checkbox" data-bind="user.subscribe">
+            Subscribe to newsletter
+          </label>
+          <div data-show="$user.firstName && $user.lastName">
+            <h3>Preview:</h3>
+            <p>
+              Name: <strong data-text="`${$user.firstName} ${$user.lastName}`"></strong><br>
+              Age: <strong data-text="$user.age"></strong><br>
+              Newsletter: <strong data-text="$user.subscribe ? 'Yes' : 'No'"></strong>
+            </p>
+          </div>
+          <button data-on:click="$user = {firstName: '', lastName: '', age: 18, subscribe: false}">
+            Reset Form
+          </button>
+        </div>
+        <details>
+          <summary>How it works</summary>
+          <pre><code>&lt;div
+  data-signals:user="{firstName: '', lastName: '', age: 18, subscribe: false}"
+  data-persist:userForm="user"&gt;</code></pre>
+          <p>Complex objects are automatically serialized to JSON and persisted.</p>
+        </details>
+      </section>
+
+      <hr>
+
+      <section>
+        <h2>Storage Inspector</h2>
+        <p>Open your browser's DevTools → Application/Storage → Local Storage to see the saved data.</p>
+        <button data-on:click="localStorage.clear(); location.reload()">
+          Clear All localStorage & Reload
+        </button>
+      </section>
     </main>
   </body>
 </html>
