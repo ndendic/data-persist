@@ -1,209 +1,277 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <title>Datastar Persist Plugin Demo</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css"
-    />
+    <title>Datastar Persist Plugin - Signal Persistence to Storage</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.6/dist/basecoat.cdn.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.6/dist/js/all.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <script type="importmap">
-      {
-        "imports": {
-          "datastar": "https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-RC.6/bundles/datastar.js"
-        }
-      }
+      { "imports": { "datastar": "https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-RC.6/bundles/datastar.js" } }
     </script>
-    <!-- <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-RC.6/bundles/datastar.js"></script> -->
     <script type="module" src="./dist/index.js"></script>
+
+    <style>
+      :root {
+        --accent-cyan: #22d3ee;
+        --accent-orange: #fb923c;
+        --accent-green: #4ade80;
+        --accent-violet: #a78bfa;
+        --grid-line: rgba(74, 222, 128, 0.08);
+        --grid-line-strong: rgba(74, 222, 128, 0.15);
+      }
+      body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+      code, pre, .font-mono { font-family: 'JetBrains Mono', monospace; }
+      .grid-bg {
+        background-color: hsl(var(--background));
+        background-image: linear-gradient(var(--grid-line-strong) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line-strong) 1px, transparent 1px), linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+      }
+      .hero-section {
+        background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(222 47% 8%) 50%, hsl(222 47% 6%) 100%);
+        border-bottom: 1px solid hsl(var(--border));
+        position: relative; overflow: hidden;
+      }
+      .hero-section::before {
+        content: ''; position: absolute; inset: 0;
+        background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(74, 222, 128, 0.15), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(34, 211, 238, 0.08), transparent);
+        pointer-events: none;
+      }
+      .section-card {
+        background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.03); overflow: hidden;
+      }
+      .section-header {
+        background: linear-gradient(to bottom, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.5) 100%);
+        border-bottom: 1px solid hsl(var(--border)); padding: 1.25rem 1.5rem;
+      }
+      .demo-container {
+        background: hsl(222 47% 6%); border: 2px solid hsl(var(--border)); border-radius: 0.75rem;
+        padding: 2rem; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3); position: relative;
+      }
+      .demo-container::before {
+        content: 'PERSIST DEMO'; position: absolute; top: 0.75rem; left: 0.75rem;
+        font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; color: var(--accent-green);
+        opacity: 0.6; font-family: 'JetBrains Mono', monospace;
+      }
+      .code-block { position: relative; border-radius: 0.75rem; overflow: hidden; border: 1px solid hsl(var(--border)); background: hsl(222 47% 8%); }
+      .code-block-header { background: hsl(var(--muted)); border-bottom: 1px solid hsl(var(--border)); padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem; }
+      .code-block-dot { width: 0.75rem; height: 0.75rem; border-radius: 50%; }
+      .code-block pre { margin: 0; padding: 1.25rem; overflow-x: auto; background: transparent !important; }
+      .code-block code { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.7; }
+      .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.5rem; background: hsl(var(--secondary)); border: 1px solid hsl(var(--border)); border-radius: 0.375rem; cursor: pointer; opacity: 0; transition: all 0.2s; color: hsl(var(--muted-foreground)); }
+      .code-block:hover .copy-btn { opacity: 1; }
+      .copy-btn:hover { background: var(--accent-cyan); color: hsl(222 47% 8%); border-color: var(--accent-cyan); }
+      .feature-tag { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; background: hsl(var(--muted)); border: 1px solid hsl(var(--border)); }
+      .feature-tag-icon { width: 0.875rem; height: 0.875rem; color: var(--accent-green); }
+      .api-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 0.75rem; overflow: hidden; }
+      .api-card-header { background: linear-gradient(to right, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.7) 100%); border-bottom: 1px solid hsl(var(--border)); padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+      .api-card-icon { width: 2rem; height: 2rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; }
+      .api-item { padding: 1rem 1.5rem; border-bottom: 1px solid hsl(var(--border) / 0.5); }
+      .api-item:last-child { border-bottom: none; }
+      .api-item:hover { background: hsl(var(--muted) / 0.3); }
+      .api-item code { background: hsl(var(--muted)); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.8rem; border: 1px solid hsl(var(--border)); color: var(--accent-cyan); }
+      .storage-card { border-radius: 0.75rem; padding: 1.5rem; border: 1px solid; }
+      .storage-card.local { background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(74, 222, 128, 0.02)); border-color: rgba(74, 222, 128, 0.3); }
+      .storage-card.session { background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(34, 211, 238, 0.02)); border-color: rgba(34, 211, 238, 0.3); }
+      .footer-section { background: hsl(var(--muted) / 0.3); border-top: 1px solid hsl(var(--border)); }
+      .footer-link { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.5rem; color: hsl(var(--muted-foreground)); transition: all 0.15s; border: 1px solid transparent; }
+      .footer-link:hover { color: hsl(var(--foreground)); background: hsl(var(--muted)); border-color: hsl(var(--border)); }
+      @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-in { animation: fadeInUp 0.5s ease-out forwards; }
+      .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; } .delay-300 { animation-delay: 0.3s; }
+    </style>
   </head>
-  <body>
-    <main>
-      <h1>Datastar Persist Plugin</h1>
-      <p>
-        This plugin automatically persists Datastar signals to localStorage or sessionStorage.
-        <strong>Reload the page</strong> to see your data persist!
-      </p>
-
-      <!-- Example 1: Basic single signal persistence -->
-      <section>
-        <h2>1. Basic Persistence (Single Signal)</h2>
-        <div data-signals:count="0" data-persist="count">
-          <p>Counter: <strong data-text="$count"></strong></p>
-          <button data-on:click="$count++">Increment</button>
-          <button data-on:click="$count--">Decrement</button>
-          <button data-on:click="$count=0">Reset</button>
-        </div>
-        <details>
-          <summary>How it works</summary>
-          <pre><code>&lt;div data-signals:count="0" data-persist="count"&gt;</code></pre>
-          <p>The <code>data-persist="count"</code> attribute tells the plugin to save the <code>count</code> signal to localStorage.</p>
-        </details>
-      </section>
-
-      <hr>
-
-      <!-- Example 2: Multiple signals -->
-      <section>
-        <h2>2. Multiple Signals</h2>
-        <div
-          data-signals:name="''"
-          data-signals:email="''"
-          data-persist="name,email">
-          <label>
-            Name:
-            <input type="text" data-bind:name placeholder="Enter your name">
-          </label>
-          <label>
-            Email:
-            <input type="email" data-bind:email placeholder="Enter your email">
-          </label>
-          <p>Hello, <strong data-text="$name || 'stranger'"></strong>!</p>
-          <p data-show="$email">Your email: <code data-text="$email"></code></p>
-        </div>
-        <details>
-          <summary>How it works</summary>
-          <pre><code>&lt;div
-  data-signals:name="''"
-  data-signals:email="''"
-  data-persist="name,email"&gt;</code></pre>
-          <p>Comma-separated signal names persist multiple values.</p>
-        </details>
-      </section>
-
-      <hr>
-
-      <!-- Example 3: Wildcard persistence -->
-      <section>
-        <h2>3. Wildcard Persistence (All Signals)</h2>
-        <div
-          data-signals="{todos: [], newTodo: ''}"
-          data-persist>
-          <label>
-            New Todo:
-            <input
-              type="text"
-              data-bind="newTodo"
-              placeholder="What needs to be done?"
-              data-on:keydown.enter="$todos.push($newTodo); $newTodo=''">
-          </label>
-          <button
-            data-on:click="$todos.push($newTodo); $newTodo=''"
-            data-attr:disabled="!$newTodo">
-            Add Todo
-          </button>
-          <p data-show="$todos.length > 0">
-            Todos: <strong data-text="$todos.join(', ')"></strong>
-          </p>
-          <button
-            data-on:click="$todos=[]"
-            data-show="$todos.length > 0">
-            Clear All
-          </button>
-        </div>
-        <details>
-          <summary>How it works</summary>
-          <pre><code>&lt;div data-signals:todos="[]" data-persist&gt;</code></pre>
-          <p>Empty <code>data-persist</code> (no value) persists all signals on the element.</p>
-        </details>
-      </section>
-
-      <hr>
-
-      <!-- Example 4: Custom storage key -->
-      <section>
-        <h2>4. Custom Storage Key</h2>
-        <div
-          data-signals:theme="'light'"
-          data-persist:preferences="theme">
-          <p>Current theme: <strong data-text="$theme"></strong></p>
-          <button data-on:click="$theme = $theme === 'light' ? 'dark' : 'light'">
-            Toggle Theme
-          </button>
-        </div>
-        <details>
-          <summary>How it works</summary>
-          <pre><code>&lt;div data-persist:preferences="theme"&gt;</code></pre>
-          <p>Using <code>:preferences</code> stores data in <code>datastar-preferences</code> key instead of default <code>datastar</code>.</p>
-        </details>
-      </section>
-
-      <hr>
-
-      <!-- Example 5: Session storage -->
-      <section>
-        <h2>5. Session Storage (Temporary)</h2>
-        <div
-          data-signals:tabState="'home'"
-          data-persist__session="tabState">
-          <p>Current tab: <strong data-text="$tabState"></strong></p>
-          <button data-on:click="$tabState='home'">Home</button>
-          <button data-on:click="$tabState='profile'">Profile</button>
-          <button data-on:click="$tabState='settings'">Settings</button>
-        </div>
-        <details>
-          <summary>How it works</summary>
-          <pre><code>&lt;div data-persist__session="tabState"&gt;</code></pre>
-          <p>The <code>__session</code> modifier uses sessionStorage (cleared when browser tab closes).</p>
-        </details>
-      </section>
-
-      <hr>
-
-      <!-- Example 6: Form with complex data -->
-      <section>
-        <h2>6. Complex Form Data</h2>
-        <div
-          data-signals:user="{firstName: '', lastName: '', age: 18, subscribe: false}"
-          data-persist:userForm="user">
-          <label>
-            First Name:
-            <input type="text" data-bind="user.firstName">
-          </label>
-          <label>
-            Last Name:
-            <input type="text" data-bind="user.lastName">
-          </label>
-          <label>
-            Age:
-            <input type="number" data-bind="user.age" min="0" max="120">
-          </label>
-          <label>
-            <input type="checkbox" data-bind="user.subscribe">
-            Subscribe to newsletter
-          </label>
-          <div data-show="$user.firstName && $user.lastName">
-            <h3>Preview:</h3>
-            <p>
-              Name: <strong data-text="`${$user.firstName} ${$user.lastName}`"></strong><br>
-              Age: <strong data-text="$user.age"></strong><br>
-              Newsletter: <strong data-text="$user.subscribe ? 'Yes' : 'No'"></strong>
-            </p>
+  <body class="bg-background text-foreground">
+    <!-- Hero -->
+    <div class="hero-section py-24 relative">
+      <div class="container mx-auto px-6 max-w-6xl relative z-10">
+        <div class="flex flex-col items-center text-center">
+          <div class="feature-tag mb-6 animate-in"><i data-lucide="database" class="feature-tag-icon"></i><span>Datastar Plugin</span></div>
+          <h1 class="text-5xl md:text-7xl font-extrabold mb-6 animate-in delay-100" style="letter-spacing: -0.02em;">
+            <span class="bg-gradient-to-r from-white via-white to-gray-400 bg-clip-text text-transparent">Persist Plugin</span>
+          </h1>
+          <p class="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-10 animate-in delay-200">Automatically persist Datastar signals to localStorage or sessionStorage</p>
+          <div class="flex flex-wrap justify-center gap-3 animate-in delay-300">
+            <div class="feature-tag"><i data-lucide="hard-drive" class="feature-tag-icon"></i>localStorage</div>
+            <div class="feature-tag"><i data-lucide="clock" class="feature-tag-icon"></i>sessionStorage</div>
+            <div class="feature-tag"><i data-lucide="asterisk" class="feature-tag-icon"></i>Wildcards</div>
+            <div class="feature-tag"><i data-lucide="gauge" class="feature-tag-icon"></i>Throttling</div>
           </div>
-          <button data-on:click="$user = {firstName: '', lastName: '', age: 18, subscribe: false}">
-            Reset Form
-          </button>
         </div>
-        <details>
-          <summary>How it works</summary>
-          <pre><code>&lt;div
-  data-signals:user="{firstName: '', lastName: '', age: 18, subscribe: false}"
-  data-persist:userForm="user"&gt;</code></pre>
-          <p>Complex objects are automatically serialized to JSON and persisted.</p>
-        </details>
-      </section>
+      </div>
+    </div>
 
-      <hr>
+    <!-- Installation -->
+    <section class="py-20 grid-bg">
+      <div class="container mx-auto px-6 max-w-6xl">
+        <div class="section-card">
+          <div class="section-header flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center">
+              <i data-lucide="download" class="w-5 h-5" style="color: var(--accent-cyan)"></i>
+            </div>
+            <div><h2 class="text-2xl font-bold">CDN Installation</h2><p class="text-sm text-muted-foreground mt-0.5">Add to your HTML head section</p></div>
+          </div>
+          <div class="p-6">
+            <div class="code-block">
+              <div class="code-block-header">
+                <div class="code-block-dot" style="background: #ff5f57;"></div>
+                <div class="code-block-dot" style="background: #febc2e;"></div>
+                <div class="code-block-dot" style="background: #28c840;"></div>
+                <span class="text-xs text-muted-foreground ml-2 font-mono">index.html</span>
+              </div>
+              <pre><code class="language-html">&lt;script type="importmap"&gt;
+  { "imports": { "datastar": "https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-RC.6/bundles/datastar.js" } }
+&lt;/script&gt;
+&lt;script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/data-persist@main/dist/index.js"&gt;&lt;/script&gt;</code></pre>
+              <button class="copy-btn" onclick="copyCode(this)"><i data-lucide="copy"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      <section>
-        <h2>Storage Inspector</h2>
-        <p>Open your browser's DevTools → Application/Storage → Local Storage to see the saved data.</p>
-        <button data-on:click="localStorage.clear(); location.reload()">
-          Clear All localStorage & Reload
-        </button>
-      </section>
-    </main>
+    <!-- Demo -->
+    <section class="py-20">
+      <div class="container mx-auto px-6 max-w-6xl">
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="text-xl font-semibold flex items-center gap-2"><span style="color: var(--accent-green);">01</span>Interactive Demo</h3>
+            <p class="text-sm text-muted-foreground mt-1">Changes persist across page reloads</p>
+          </div>
+          <div class="p-6">
+            <div class="demo-container" data-signals:user_name="''" data-signals:user_theme="'dark'" data-signals:user_count="0">
+              <div data-persist="user_name,user_theme,user_count"></div>
+              <div class="grid md:grid-cols-3 gap-6">
+                <div>
+                  <label class="block text-sm font-medium mb-2">Your Name</label>
+                  <input type="text" class="input w-full" data-model="user_name" placeholder="Enter your name...">
+                  <p class="text-xs text-muted-foreground mt-2">Stored in localStorage</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-2">Theme Preference</label>
+                  <select class="select w-full" data-model="user_theme">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="auto">Auto</option>
+                  </select>
+                  <p class="text-xs text-muted-foreground mt-2">Persisted selection</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-2">Visit Count</label>
+                  <div class="flex items-center gap-3">
+                    <button class="btn" data-on-click="$user_count++">+1</button>
+                    <span class="text-2xl font-bold font-mono" style="color: var(--accent-green);" data-text="$user_count">0</span>
+                    <button class="btn-outline" data-on-click="$user_count = 0">Reset</button>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-6 p-4 rounded-lg bg-muted/30 border border-border">
+                <p class="text-sm text-muted-foreground"><strong>Try it:</strong> Change values and refresh the page - they'll persist!</p>
+              </div>
+            </div>
+            <div class="code-block mt-6">
+              <div class="code-block-header">
+                <div class="code-block-dot" style="background: #ff5f57;"></div>
+                <div class="code-block-dot" style="background: #febc2e;"></div>
+                <div class="code-block-dot" style="background: #28c840;"></div>
+              </div>
+              <pre><code class="language-html">&lt;div data-signals:user_name="''" data-signals:user_theme="'dark'"&gt;
+  &lt;!-- Persist specific signals --&gt;
+  &lt;div data-persist="user_name,user_theme"&gt;&lt;/div&gt;
+
+  &lt;!-- Or use wildcards --&gt;
+  &lt;div data-persist="user_*"&gt;&lt;/div&gt;
+
+  &lt;input data-model="user_name"&gt;
+&lt;/div&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Reference -->
+    <section class="py-20 grid-bg">
+      <div class="container mx-auto px-6 max-w-6xl">
+        <div class="flex items-center gap-3 mb-10">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 flex items-center justify-center">
+            <i data-lucide="book-open" class="w-5 h-5" style="color: var(--accent-green)"></i>
+          </div>
+          <div><h2 class="text-3xl font-bold">API Reference</h2><p class="text-muted-foreground mt-1">Complete documentation</p></div>
+        </div>
+        <div class="grid gap-6 lg:grid-cols-2">
+          <div class="api-card">
+            <div class="api-card-header">
+              <div class="api-card-icon" style="background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(34, 211, 238, 0.05)); border: 1px solid rgba(34, 211, 238, 0.2);">
+                <i data-lucide="code" class="w-4 h-4" style="color: var(--accent-cyan)"></i>
+              </div>
+              <h3 class="text-lg font-semibold">Attributes</h3>
+            </div>
+            <div>
+              <div class="api-item"><code>data-persist="signal1,signal2"</code><p class="text-sm text-muted-foreground mt-2">Persist specific signals to localStorage</p></div>
+              <div class="api-item"><code>data-persist="prefix_*"</code><p class="text-sm text-muted-foreground mt-2">Wildcard - persist all signals matching pattern</p></div>
+              <div class="api-item"><code>data-persist__session="signal"</code><p class="text-sm text-muted-foreground mt-2">Use sessionStorage instead of localStorage</p></div>
+            </div>
+          </div>
+          <div class="api-card">
+            <div class="api-card-header">
+              <div class="api-card-icon" style="background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(251, 146, 60, 0.05)); border: 1px solid rgba(251, 146, 60, 0.2);">
+                <i data-lucide="settings" class="w-4 h-4" style="color: var(--accent-orange)"></i>
+              </div>
+              <h3 class="text-lg font-semibold">Modifiers</h3>
+            </div>
+            <div>
+              <div class="api-item"><code>__throttle:500</code><p class="text-sm text-muted-foreground mt-2">Throttle storage writes (ms)</p></div>
+              <div class="api-item"><code>__session</code><p class="text-sm text-muted-foreground mt-2">Use sessionStorage</p></div>
+              <div class="api-item"><code>__key:customKey</code><p class="text-sm text-muted-foreground mt-2">Custom storage key prefix</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="grid gap-6 lg:grid-cols-2 mt-6">
+          <div class="storage-card local">
+            <div class="flex items-center gap-2 mb-3"><i data-lucide="hard-drive" class="w-5 h-5" style="color: var(--accent-green)"></i><h4 class="text-lg font-semibold">localStorage</h4></div>
+            <p class="text-sm text-muted-foreground mb-4">Data persists until explicitly cleared. Survives browser restarts.</p>
+            <code class="text-xs px-2 py-1 rounded bg-muted border border-border">data-persist="signal"</code>
+          </div>
+          <div class="storage-card session">
+            <div class="flex items-center gap-2 mb-3"><i data-lucide="clock" class="w-5 h-5" style="color: var(--accent-cyan)"></i><h4 class="text-lg font-semibold">sessionStorage</h4></div>
+            <p class="text-sm text-muted-foreground mb-4">Data cleared when browser tab closes. Tab-specific storage.</p>
+            <code class="text-xs px-2 py-1 rounded bg-muted border border-border">data-persist__session="signal"</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-section py-10">
+      <div class="container mx-auto px-6 max-w-6xl">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div class="text-muted-foreground text-sm">
+            Built with <a href="https://data-star.dev" class="text-foreground hover:underline underline-offset-4">Datastar</a>
+            <span class="mx-2 opacity-40">|</span><span class="opacity-60">Signal Persistence Plugin</span>
+          </div>
+          <div class="flex gap-2">
+            <a href="https://github.com/starfederation/data-persist" class="footer-link"><i data-lucide="github" class="w-4 h-4"></i>GitHub</a>
+            <a href="https://data-star.dev/docs" class="footer-link"><i data-lucide="book-open" class="w-4 h-4"></i>Docs</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => { lucide.createIcons(); document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block)); });
+      function copyCode(button) { const codeBlock = button.parentElement.querySelector('code'); navigator.clipboard.writeText(codeBlock.textContent).then(() => { const icon = button.querySelector('i'); icon.setAttribute('data-lucide', 'check'); lucide.createIcons(); setTimeout(() => { icon.setAttribute('data-lucide', 'copy'); lucide.createIcons(); }, 2000); }); }
+    </script>
   </body>
 </html>
