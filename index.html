@@ -151,16 +151,16 @@
           </div>
           <div class="p-6">
             <div class="demo-container" data-signals:user_name="''" data-signals:user_theme="'dark'" data-signals:user_count="0">
-              <div data-persist="user_name,user_theme,user_count"></div>
+              <div data-persist="user_name, user_theme, user_count"></div>
               <div class="grid md:grid-cols-3 gap-6">
                 <div>
                   <label class="block text-sm font-medium mb-2">Your Name</label>
-                  <input type="text" class="input w-full" data-model="user_name" placeholder="Enter your name...">
+                  <input type="text" class="input w-full" data-bind="user_name" placeholder="Enter your name...">
                   <p class="text-xs text-muted-foreground mt-2">Stored in localStorage</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium mb-2">Theme Preference</label>
-                  <select class="select w-full" data-model="user_theme">
+                  <select class="select w-full" data-bind="user_theme">
                     <option value="light">Light</option>
                     <option value="dark">Dark</option>
                     <option value="auto">Auto</option>
@@ -170,9 +170,9 @@
                 <div>
                   <label class="block text-sm font-medium mb-2">Visit Count</label>
                   <div class="flex items-center gap-3">
-                    <button class="btn" data-on-click="$user_count++">+1</button>
+                    <button class="btn" data-on:click="$user_count++">+1</button>
                     <span class="text-2xl font-bold font-mono" style="color: var(--accent-green);" data-text="$user_count">0</span>
-                    <button class="btn-outline" data-on-click="$user_count = 0">Reset</button>
+                    <button class="btn-outline" data-on:click="$user_count = 0">Reset</button>
                   </div>
                 </div>
               </div>
@@ -193,7 +193,7 @@
   &lt;!-- Or use wildcards --&gt;
   &lt;div data-persist="user_*"&gt;&lt;/div&gt;
 
-  &lt;input data-model="user_name"&gt;
+  &lt;input data-bind="user_name"&gt;
 &lt;/div&gt;</code></pre>
             </div>
           </div>
@@ -262,7 +262,7 @@
             <span class="mx-2 opacity-40">|</span><span class="opacity-60">Signal Persistence Plugin</span>
           </div>
           <div class="flex gap-2">
-            <a href="https://github.com/starfederation/data-persist" class="footer-link"><i data-lucide="github" class="w-4 h-4"></i>GitHub</a>
+            <a href="https://github.com/ndendic/data-persist" class="footer-link"><i data-lucide="github" class="w-4 h-4"></i>GitHub</a>
             <a href="https://data-star.dev/docs" class="footer-link"><i data-lucide="book-open" class="w-4 h-4"></i>Docs</a>
           </div>
         </div>
