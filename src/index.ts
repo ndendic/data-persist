@@ -131,6 +131,44 @@ function saveToStorage(config: PersistConfig, signalData: Record<string, any>): 
 
 console.log('[Persist Plugin] Loaded');
 
+// Track loaded keys to avoid duplicate loads
+const loadedKeys = new Set<string>();
+
+// EXPERIMENTAL: Immediately load persisted data when module loads
+// This runs BEFORE Datastar processes DOM, so persisted values are set first
+// Use data-signals__ifmissing in HTML to prevent overwriting these values
+(function attemptEarlyLoad() {
+  console.log('[Persist Plugin] Attempting early load from storage');
+
+  try {
+    const storage = localStorage;
+    const stored = storage.getItem(DEFAULT_STORAGE_KEY);
+
+    if (stored) {
+      console.log(`[Persist Plugin] Found persisted data:`, stored);
+      const data = JSON.parse(stored);
+
+      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+        console.log(`[Persist Plugin] Restoring signals:`, Object.keys(data));
+
+        // Apply immediately - this sets signals BEFORE DOM processing
+        beginBatch();
+        try {
+          mergePatch(data);
+          loadedKeys.add(DEFAULT_STORAGE_KEY);
+          console.log(`[Persist Plugin] ✓ Persisted values restored early`);
+        } finally {
+          endBatch();
+        }
+      }
+    } else {
+      console.log('[Persist Plugin] No persisted data found');
+    }
+  } catch (e) {
+    console.warn('[Persist Plugin] Early load failed:', e);
+  }
+})();
+
 attribute({
   name: 'persist',
   requirement: 'optional',
@@ -143,8 +181,14 @@ attribute({
     }
     console.log('[Persist Plugin] Config:', config);
 
-    // Step 1: Load data from storage
-    loadFromStorage(config);
+    // Step 1: Load from storage if not already loaded
+    if (!loadedKeys.has(config.storageKey)) {
+      console.log('[Persist Plugin] Loading from storage');
+      loadFromStorage(config);
+      loadedKeys.add(config.storageKey);
+    } else {
+      console.log('[Persist Plugin] Already loaded (using early-loaded values)');
+    }
 
     // Step 2: Watch signals and save on change
     const cleanup = effect(() => {
@@ -160,7 +204,7 @@ attribute({
         }
       }
 
-      // Step 3: Save immediately to storage
+      // Step 3: Save to storage
       if (Object.keys(data).length > 0) {
         saveToStorage(config, data);
       }
